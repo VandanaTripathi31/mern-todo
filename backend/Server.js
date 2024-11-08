@@ -1,33 +1,24 @@
+require("dotenv").config(); // Load environment variables from .env file
 const express = require("express");
-const mongoose = require("mongoose");
 const cors = require("cors");
+const connectDB = require("./conn/conn"); // Corrected path to conn.js
 
 const app = express();
-app.use(cors()); // Allow CORS for cross-origin requests
-app.use(express.json());
+app.use(cors()); // Enable CORS for cross-origin requests
+app.use(express.json()); // Parse JSON bodies
 
 // Connect to MongoDB
-const conn = async () => {
-    try {
-        await mongoose.connect("mongodb+srv://tripathivandana086:user123@cluster0.4u1yh.mongodb.net/", {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
-        console.log("Connected to the database");
-    } catch (error) {
-        console.error("Database connection failed:", error);
-    }
-};
-conn();
+connectDB(); // Initialize database connection
 
-// Import routes
+// Import and use routes
 const authRoutes = require("./routes/auth");
+const listRoutes = require("./routes/list");
 
-// Use routes
 app.use("/api/v1", authRoutes);
+app.use("/api/v1", listRoutes);
 
-// Start the server on a specific port
-const PORT = process.env.PORT || 1000;
+// Start the server
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
-    console.log("Server is running on port ${PORT}");
+    console.log(`Server is running on port ${PORT}`);
 });
