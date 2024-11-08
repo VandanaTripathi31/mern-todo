@@ -19,11 +19,11 @@ const SignIn = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:1000/api/v1/signin", inputs);
+      const response = await axios.post("http://localhost:5001/api/v1/signin", inputs);
 
-      if (response.status === 200 && response.data && response.data.others) {
-        const userId = response.data.others._id;
-        sessionStorage.setItem("userId", userId);
+      if (response.status === 200 && response.data) {
+        const { userId } = response.data;
+        sessionStorage.setItem("userId", userId); // Store the userId in sessionStorage
         navigate("/todo"); // Redirect to the todo page after successful login
       } else {
         alert(response.data.message || "Login failed. Please check your credentials.");

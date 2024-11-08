@@ -1,55 +1,57 @@
-const router = require("express").Router();
-const User = require("../models/user");
-const bcrypt = require("bcryptjs");
+const express = require("express");
+const fs = require("fs");
+const path = require("path");
+const router = express.Router();
 
-// SIGN UP
-router.post("/register", async (req, res) => {
-    try {
-        const { email, username, password } = req.body;
+const dbPath = path.join(__dirname, "../data/db.json");
 
-        // Validate inputs (optional)
-        if (!email || !username || !password) {
-            return res.status(400).json({ message: "All fields are required" });
-        }
+function readData() {
+    const data = fs.readFileSync(dbPath);
+    return JSON.parse(data);
+}
 
-        // Check if the user already exists
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(409).json({ message: "User Already Exists" });
-        }
+function writeData(data) {
+    fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
+}
 
-        // Hash the password
-        const salt = bcrypt.genSaltSync(10);
-        const hashPassword = bcrypt.hashSync(password, salt);
+// Sign Up Route
+router.post("/register", (req, res) => {
+    const { email, username, password } = req.body;
+    let data = readData();
 
-        // Create and save the new user
-        const user = new User({ email, username, password: hashPassword });
-        await user.save();
-        res.status(201).json({ message: "Sign Up Successfully" });
-    } catch (error) {
-        res.status(500).json({ message: "Server Error", error: error.message });
+    // Check if user already exists
+    const userExists = data.users.some((user) => user.email === email);
+
+    if (userExists) {
+        return res.status(409).json({ message: "User Already Exists" });
     }
+
+    // Add new user
+    const newUser = {
+        id: Date.now().toString(),
+        email,
+        username,
+        password
+    };
+
+    data.users.push(newUser);
+    writeData(data);
+
+    res.status(201).json({ message: "User Registered Successfully" });
 });
 
-// SIGN IN
-router.post("/signin", async (req, res) => {
-    try {
-        const { email, password } = req.body;
+// Sign In Route
+router.post("/signin", (req, res) => {
+    const { email, password } = req.body;
+    const data = readData();
 
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(404).json({ message: "User not found. Please Sign Up First" });
-        }
+    // Check if user exists with the provided credentials
+    const user = data.users.find((user) => user.email === email && user.password === password);
 
-        const isPasswordCorrect = bcrypt.compareSync(password, user.password);
-        if (!isPasswordCorrect) {
-            return res.status(400).json({ message: "Password is Incorrect" });
-        }
-
-        const { password: userPassword, ...others } = user._doc;
-        res.status(200).json({ user: others });
-    } catch (error) {
-        res.status(500).json({ message: "Server Error", error: error.message });
+    if (user) {
+        return res.json({ message: "Login successful", userId: user.id });
+    } else {
+        return res.status(401).json({ message: "Invalid email or password" });
     }
 });
 

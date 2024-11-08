@@ -20,12 +20,12 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:1000/api/v1/register", inputs);
-      
+      const response = await axios.post("http://localhost:5001/api/v1/register", inputs);
+
       if (response.data.message === "User Already Exists") {
         alert(response.data.message);
       } else {
-        alert(response.data.message);
+        alert("Signup successful!");
         setInputs({ email: "", username: "", password: "" });
         navigate("/signin"); // Redirect to SignIn page after successful signup
       }

@@ -1,3 +1,5 @@
+// frontend/src/App.js
+
 import React from "react";
 import Navbar from "./components/navbar/Navbar";
 import Home from "./components/Home/Home";
@@ -12,21 +14,18 @@ const App = () => {
   return (
     <div>
       <Router>
-        <Navbar/>
-  
+        <Navbar />
         <Routes>
-          <Route exact path="/" element= {<Home />} />
-          <Route path="/about" element= {<About  />} />
-          <Route path="/todo" element= {<Todo  />} />
-          <Route path="/signup" element= {<Signup  />} />
-          <Route path="/signin" element= {<SignIn  />} />
+          <Route exact path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/todo" element={<Todo />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/signin" element={<SignIn />} />
         </Routes>
       </Router>
-      <Footer/>
-    
+      <Footer />
     </div>
   );
-
 };
 
 export default App;
